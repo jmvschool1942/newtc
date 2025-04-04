@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Certificate</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <style>
+        /* Basic styling */
+        .modal { display: none; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 400px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        .close-btn { font-size: 18px; cursor: pointer; border: none; background: transparent; }
+        #searchStudent, #classSelect {
+    width: 200px; /* Adjust width as needed */
+    padding: 6px;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+        #studentList { max-height: 300px; overflow-y: auto; margin-top: 10px; border: 1px solid #ddd; padding: 10px; }
+        .file-upload-container { text-align: center; margin: 20px 0; }
+        .file-upload-button, .reset-button { padding: 10px 20px; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .file-upload-button { background-color: #007bff; }
+        .reset-button { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="file-upload-container">
+        <button class="file-upload-button" onclick="document.getElementById('fileInput').click()">Choose a File</button>
+        <button class="reset-button" onclick="resetForm()">Reset</button>
+        <input type="file" id="fileInput" accept=".xlsx" style="display: none;" onchange="loadExcel(event)">
+    </div>
+
+    <!-- Class Selection -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <label for="classSelect"><strong>Select Class:</strong></label>
+        <select id="classSelect" onchange="filterByClass()">
+            <option value="">-- Select a Class --</option>
+        </select>
+   </div>
+
+    <div id="studentModal" class="modal">
+        <div class="modal-header">
+            <h2>Select a Student</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <input type="text" id="searchStudent" placeholder="Search student..." onkeyup="filterStudents()">
+        <div id="studentList"></div>
+    </div>
+
+<script>
+let studentData = []; // Store student data globally
+let headers = [];
+
+function loadExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return alert("No file selected!");
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        headers = jsonData[0].map(header => header.trim().toLowerCase().replace(/\s+/g, ""));
+        studentData = jsonData.slice(1).map(row => Object.fromEntries(headers.map((h, i) => [h, row[i]])));
+
+        populateClassDropdown();
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// Populate class selection dropdown with unique values
+function populateClassDropdown() {
+    const classSelect = document.getElementById("classSelect");
+    classSelect.innerHTML = '<option value="">-- Select a Class --</option>';
+
+    let uniqueClasses = [...new Set(studentData.map(s => s.presentclass).filter(Boolean))];
+
+    uniqueClasses.forEach(cls => {
+        let option = document.createElement("option");
+        option.value = cls;
+        option.textContent = cls;
+        classSelect.appendChild(option);
+    });
+}
+
+// Filter students by selected class
+function filterByClass() {
+    const selectedClass = document.getElementById("classSelect").value;
+    const studentList = document.getElementById("studentList");
+    studentList.innerHTML = "";
+
+    let filteredStudents = studentData.filter(s => s.presentclass === selectedClass);
+    
+    filteredStudents.forEach(student => {
+        let button = document.createElement("button");
+        button.textContent = student.studentname || "Unknown";
+        button.classList.add("student-btn");
+
+        button.onclick = function () {
+            redirectToNewPage(student);
+        };
+
+        studentList.appendChild(button);
+    });
+
+    document.getElementById("studentModal").style.display = "block";
+}
+
+// Redirect with selected student details in URL
+function redirectToNewPage(student) {
+    let params = new URLSearchParams();
+
+    headers.forEach(header => {
+        let value = student[header] || "";
+        if (["leftjalalpurdate", "dob", "date2"].includes(header)) {
+            value = formatExcelDate(value);
+        }
+        params.append(header, value);
+    });
+
+    console.log("Redirecting with:", Object.fromEntries(params.entries()));
+
+    window.location.href = "page3.html?" + params.toString();
+}
+
+function redirectToBulkTC() {
+    const selectedClass = document.getElementById("classSelect").value;
+    if (!selectedClass) {
+        alert("Please select a class first!");
+        return;
+    }
+
+    let filteredStudents = studentData.filter(s => s.presentclass === selectedClass);
+    if (filteredStudents.length === 0) {
+        alert("No students found for this class!");
+        return;
+    }
+
+    sessionStorage.setItem("bulkStudents", JSON.stringify(filteredStudents));
+    window.location.href = "page3.html"; // Redirect to bulk TC generation page
+}
+
+// Improved date formatting to handle serials safely
+function formatExcelDate(excelDate) {
+    if (!excelDate) return "";
+
+    // If numeric, handle serial date
+    if (typeof excelDate === 'number') {
+        let date = XLSX.SSF.parse_date_code(excelDate);
+        if (!date) return excelDate;
+        return `${String(date.d).padStart(2, "0")}-${String(date.m).padStart(2, "0")}-${date.y}`;
+    }
+
+    // If Date object
+    if (excelDate instanceof Date) {
+        return `${String(excelDate.getDate()).padStart(2, "0")}-${String(excelDate.getMonth() + 1).padStart(2, "0")}-${excelDate.getFullYear()}`;
+    }
+
+    // Try parsing string
+    let dateObj = new Date(excelDate);
+    if (!isNaN(dateObj.getTime())) {
+        return `${String(dateObj.getDate()).padStart(2, "0")}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${dateObj.getFullYear()}`;
+    }
+
+    return excelDate; // fallback as is
+}
+
+function filterStudents() {
+    let input = document.getElementById("searchStudent").value.toLowerCase();
+    let buttons = document.querySelectorAll("#studentList button");
+
+    buttons.forEach(btn => {
+        btn.style.display = btn.textContent.toLowerCase().includes(input) ? "block" : "none";
+    });
+}
+
+function closeModal() {
+    document.getElementById("studentModal").style.display = "none";
+}
+
+function resetForm() {
+    document.getElementById("fileInput").value = "";
+    document.getElementById("studentList").innerHTML = "";
+    document.getElementById("searchStudent").value = "";
+    document.getElementById("classSelect").innerHTML = '<option value="">-- Select a Class --</option>';
+    
+    studentData = [];
+    sessionStorage.removeItem("bulkStudents");
+    alert("Form reset successfully!");
+}
+</script></body>
+</html>

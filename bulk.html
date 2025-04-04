@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Certificate</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .file-upload-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            width: 200px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #ff0000;
+            margin: 10px 0;
+            display: none;
+        }
+        .success {
+            color: #4CAF50;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="file-upload-container">
+            <button onclick="document.getElementById('fileInput').click()">Choose Excel File</button>
+            <input type="file" id="fileInput" accept=".xlsx" style="display: none;" onchange="loadExcel(event)">
+        </div>
+        
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Processing file...</p>
+        </div>
+        
+        <div class="error" id="errorMessage"></div>
+        <div class="success" id="successMessage"></div>
+        
+        <div>
+            <label for="classSelect"><strong>Select Class:</strong></label>
+            <select id="classSelect" onchange="filterByClass()" disabled>
+                <option value="">-- Select a Class --</option>
+            </select>
+        </div>
+        
+        <button id="proceedButton" onclick="redirectToBulkTC()" disabled>Proceed</button>
+    </div>
+
+<script>
+let studentData = [];
+
+function showLoading(show) {
+    document.querySelector('.loading').style.display = show ? 'block' : 'none';
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => errorDiv.style.display = 'none', 5000);
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById('successMessage');
+    successDiv.textContent = message;
+    successDiv.style.display = 'block';
+    setTimeout(() => successDiv.style.display = 'none', 3000);
+}
+
+function validateExcelFile(file) {
+    const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+    if (!validTypes.includes(file.type)) {
+        throw new Error('Invalid file type. Please upload an Excel file (.xlsx)');
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size too large. Maximum size is 5MB');
+    }
+}
+
+function loadExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+        validateExcelFile(file);
+        showLoading(true);
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                if (jsonData.length < 2) {
+                    throw new Error('Excel file is empty or has no data');
+                }
+
+                const headers = jsonData[0].map(header => header?.trim().toLowerCase().replace(/\s+/g, "") || '');
+                if (!headers.includes('presentclass')) {
+                    throw new Error('Required column "presentclass" not found in Excel file');
+                }
+
+                studentData = jsonData.slice(1).map(row => Object.fromEntries(headers.map((h, i) => [h, row[i]])));
+                populateClassDropdown();
+                showSuccess('File loaded successfully!');
+                
+            } catch (error) {
+                showError(error.message);
+            }
+            showLoading(false);
+        };
+
+        reader.onerror = function() {
+            showError('Error reading file');
+            showLoading(false);
+        };
+
+        reader.readAsArrayBuffer(file);
+
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+function populateClassDropdown() {
+    const classSelect = document.getElementById("classSelect");
+    classSelect.innerHTML = '<option value="">-- Select a Class --</option>';
+    let uniqueClasses = [...new Set(studentData.map(s => s.presentclass).filter(Boolean))].sort();
+    
+    if (uniqueClasses.length === 0) {
+        showError('No valid class data found in the file');
+        return;
+    }
+
+    uniqueClasses.forEach(cls => {
+        let option = document.createElement("option");
+        option.value = cls;
+        option.textContent = cls;
+        classSelect.appendChild(option);
+    });
+
+    classSelect.disabled = false;
+}
+
+function filterByClass() {
+    const selectedClass = document.getElementById("classSelect").value;
+    document.getElementById("proceedButton").disabled = !selectedClass;
+}
+
+function redirectToBulkTC() {
+    const selectedClass = document.getElementById("classSelect").value;
+    if (!selectedClass) {
+        showError("Please select a class first!");
+        return;
+    }
+
+    let filteredStudents = studentData.filter(s => s.presentclass === selectedClass);
+
+    if (filteredStudents.length === 0) {
+        showError("No students found for this class!");
+        return;
+    }
+
+    try {
+        console.log("Filtered Students Before Storing:", filteredStudents); // 🔴 Debugging
+        sessionStorage.setItem("bulkStudents", JSON.stringify(filteredStudents));
+        showSuccess("Processing students...");
+        setTimeout(() => {
+            window.location.href = "bulk1.html";
+        }, 1000);
+    } catch (error) {
+        showError("Error saving data. Please try again.");
+    }
+}
+</script>
+</body>
+</html>

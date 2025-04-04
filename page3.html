@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Certificate</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<style>
+    /* Existing styles */
+    @page {
+        size: legal landscape;
+        margin: 0;
+    }
+    body {
+        font-family: "Times New Roman", serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #fff;
+    }
+    .container {
+        width: 13.5in;
+        height: 8in;
+        padding: 20px;
+       
+        box-sizing: border-box;
+        display: flex;
+        gap: 20px;
+    }
+.container {
+    position: relative;
+    overflow: hidden;
+}
+
+.container::before {
+    content: "Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School Jalalpur MV School ";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px;
+    font-size: 20px;
+    color: rgba(128, 128, 128, 0.2);
+    pointer-events: none;
+    z-index: -1;
+    transform: rotate(0deg);
+    white-space: normal;
+    align-items: left;
+    justify-content: center;
+    text-align: left;
+    line-height: 1;
+}
+    .column {
+        padding: 10px;
+    }
+    .small {
+        font-size: 80%;
+        width: 40%;
+    }
+    .large {
+        width: 60%;
+    }
+    h2, h3 {
+        text-align: center;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+    .sub-info {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-top: 0px;
+        margin-bottom: 5px;
+    }
+    .info {
+        margin-bottom: 5px;
+    }
+    .content {
+        text-align: justify;
+        line-height: 1.4;
+    }
+    .signature {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .signature div {
+        text-align: center;
+        width: 30%;
+    }
+    .signature div p {
+        margin: 2px 0;
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .divider {
+        width: 2px;
+        background: black;
+        border-left: 2px dotted black;
+        height: auto;
+    }
+    .print-button, .upload-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        background-color: blue;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .upload-button {
+        right: 120px;
+        background-color: green;
+    }
+
+    /* Bulk print button styles */
+    .bulk-print {
+        padding: 10px 20px;
+        background-color: black;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .bulk-print:hover {
+        background-color: #45a049;
+    }
+
+    @media print {
+        .bulk-print {
+            display: none;
+        }
+    }
+
+    .date-place-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+    input[type="text"] {
+        width: auto;
+        min-width: 50px;
+        max-width: 100%;
+        border: 1px solid #000;
+    }
+    input[type="text"]:focus {
+        outline: none;
+        border-bottom: 2px solid blue;
+    }
+    select {
+        max-width: 100%;
+    }
+
+    @media print {
+        input.data-input {
+            display: none; /* Hide inputs */
+        }
+        span {
+            display: inline-block;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="checkbox"] {
+            border: none;
+            outline: none;
+            background: transparent;
+        }
+        .print-button, .upload-button {
+            display: none;
+        }
+        select {
+            border: none;
+            background: transparent;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    }
+</style>
+
+</head>
+<body>
+<div style="position: fixed; top: 10px; right: 10px; display: flex; gap: 10px;">
+        <button class="print-button" onclick="window.print()">Print</button>
+            </div>
+    <div class="container">
+        <div class="column small">
+            <h2>Jalalpur MV School</h2>
+            <p class="sub-info">P.O.- Jalalpur, District- Cachar, Assam<br>U-DISE: 18210108702 | Estd. 1942</p>
+            <div class="info"><strong>Adm. No.:</strong> <input type="text" class="data-input" data-field="admno"></div>
+            <div class="info"><strong>Unique Id:</strong> <input type="text" class="data-input" data-field="uniqueid"></div>
+            <div class="info"><strong>Book No.:</strong> <input type="text" class="data-input" data-field="bookno"></div>
+            <div class="info"><strong>SL No.:</strong> <input type="text" class="data-input" data-field="slno"></div>
+            <div class="info"><strong>PEN No.:</strong> <input type="text" class="data-input" data-field="penno"></div>
+          <h3>Transfer/Leaving Certificate</h3>
+        <p class="content">This is to certify that <input type="text" class="data-input" data-field="studentname">, son of (father) <input type="text" class="data-input" data-field="fathername"> and (mother) <input type="text" class="data-input" data-field="mothername">, an inhabitant of village <input type="text" class="data-input" data-field="village">
+,P.O <b>Jalalpur</b>, P.S. <b>Kalain</b>, District-<b>Cachar</b> was a student of class <select data-field="previousclass">
+    <option value="I">I</option>
+    <option value="II">II</option>
+    <option value="III">III</option>
+    <option value="IV">IV</option>
+    <option value="V">V</option>
+    <option value="VI">VI</option>
+    <option value="VII">VII</option>
+    <option value="VIII">VIII</option>
+</select>.<select data-field="choice1">
+         <option value="He">He</option>
+        <option value="She">She</option></select> <select data-field="choice2">
+         <option value="had">had</option>
+        <option value="had not">had not</option></select> passed the final Evaluation/Examination and <select data-field="choice3">
+         <option value="promoted to">promoted to</option>
+        <option value="detained in">detained in</option></select> to class <select data-field="nextclass">
+    <option value="I">I</option>
+    <option value="II">II</option>
+    <option value="III">III</option>
+    <option value="IV">IV</option>
+    <option value="V">V</option>
+    <option value="VI">VI</option>
+    <option value="VII">VII</option>
+    <option value="VIII">VIII</option>
+    <option value="IX">IX</option>
+</select>
+ & left the Jalalpur MV School on <input type="date" class="leftjalalpurdate">.<select data-field="choice4">
+         <option value="His">His</option>
+        <option value="Her">Her</option></select> date of birth is <input type="date" data-field="dob" class="dob">as per the birth date recorded in the admission register.</p>
+<br>
+            <h3>Reason of Leaving</h3>
+            <ul>
+                <li><input type="checkbox"> Unavoidable change of residence</li>
+                <li><input type="checkbox"> Completion of school course</li>
+                <li><input type="checkbox"> Ill health</li>
+                <li><input type="checkbox"> Minor reasons</li>
+            </ul>
+<br>
+            <div class="signature">
+                <div class="date-place-container" style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <p><strong>Place:</strong><b> Jalalpur </b></p>
+                    <p><strong>Date:</strong> <input type="date" class="date2"></p>
+                </div>
+                <div>
+                    <p><strong>Head Master</strong></p>
+                    <p>Jalalpur MV School</p>
+                    <p>Cachar, Assam</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="divider"></div>
+        <div class="column large">
+            <h2>Jalalpur MV School</h2>
+            <p class="sub-info">P.O.- Jalalpur, District- Cachar, Assam<br>U-DISE: 18210108702 | Estd. 1942</p>
+            <div class="info-row">
+                <div class="info"><strong>Adm. No.:</strong> <input type="text" class="data-input" data-field="admno"></div>
+                <div class="info"><strong>Book No.:</strong> <input type="text" class="data-input" data-field="bookno"></div>
+              
+            </div>
+          <div class="info-row">
+                <div class="info"><strong>Unique Id:</strong> <input type="text" class="data-input" data-field="uniqueid"></div>
+                <div class="info"><strong>SL No.:</strong> <input type="text" class="data-input" data-field="slno"></div>
+            </div>
+          <div class="info-row">
+                <div class="info"><strong>PEN No.:</strong> <input type="text" class="data-input" data-field="penno"></div>
+            </div>
+            <h3>Transfer/Leaving Certificate</h3>
+           <p class="content">This is to certify that <input type="text" class="data-input" data-field="studentname">, son of (father) <input type="text" class="data-input" data-field="fathername"> and (mother) <input type="text" class="data-input" data-field="mothername">, an inhabitant of village <input type="text" class="data-input" data-field="village">
+,P.O <b>Jalalpur</b>, P.S. <b>Kalain</b>, District-<b>Cachar</b> was a student of class <select data-field="previousclass">
+    <option value="I">I</option>
+    <option value="II">II</option>
+    <option value="III">III</option>
+    <option value="IV">IV</option>
+    <option value="V">V</option>
+    <option value="VI">VI</option>
+    <option value="VII">VII</option>
+    <option value="VIII">VIII</option>
+</select>.<select data-field="choice1">
+         <option value="He">He</option>
+        <option value="She">She</option></select> <select data-field="choice2">
+         <option value="had">had</option>
+        <option value="had not">had not</option></select> passed the final Evaluation/Examination and <select data-field="choice3">
+         <option value="promoted to">promoted to</option>
+        <option value="detained in">detained in</option></select> to class <select data-field="nextclass">
+    <option value="I">I</option>
+    <option value="II">II</option>
+    <option value="III">III</option>
+    <option value="IV">IV</option>
+    <option value="V">V</option>
+    <option value="VI">VI</option>
+    <option value="VII">VII</option>
+    <option value="VIII">VIII</option>
+    <option value="IX">IX</option>
+</select> & left the Jalalpur MV School on <input type="date" class="leftjalalpurdate">.<select data-field="choice4">
+         <option value="His">His</option>
+        <option value="Her">Her</option></select> date of birth is <input type="date" class="dob"> as per the birth date recorded in the admission register.</p>
+
+           <br></br>
+          <h4>Reason of Leaving</h4>
+            <ul>
+                <li><input type="checkbox"> Unavoidable change of residence</li>
+                <li><input type="checkbox"> Completion of school course</li>
+                <li><input type="checkbox"> Ill health</li>
+                <li><input type="checkbox" data-field="reason"> Minor reasons</li>
+            </ul>
+          <br></br>
+          <div class="signature">
+                <div class="date-place-container">
+                    <p><strong>Place:</strong><b> Jalalpur</b></p>
+                    <p><strong>Date:</strong> <input type="date" class="date2"></p>
+                </div>
+                <div>
+                    <p><strong>Head Master</strong></p>
+                    <p>Jalalpur MV School</p>
+                    <p>Cachar, Assam</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+        </div>
+    </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+
+    // Function to convert DD-MM-YYYY to YYYY-MM-DD for input[type="date"]
+    function convertToDateInputFormat(dateStr) {
+        if (!dateStr) return "";
+        let parts = dateStr.split("-");
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert to YYYY-MM-DD
+        }
+        return dateStr;
+    }
+
+    // Assign values from URL to form fields
+    document.querySelectorAll(".data-input, select").forEach(element => {
+        let fieldName = element.getAttribute("data-field");
+        if (fieldName && params.has(fieldName)) {
+            element.value = params.get(fieldName);
+        }
+    });
+
+    // Assign date values correctly for leftjalalpurdate, dob, and date2
+    let dateFields = ["leftjalalpurdate", "dob", "date2"];
+    dateFields.forEach(field => {
+        if (params.has(field)) {
+            let formattedDate = convertToDateInputFormat(params.get(field));
+            document.querySelectorAll(`.${field}`).forEach(input => {
+                input.value = formattedDate;
+            });
+        }
+    });
+
+    // ✅ Automatically check the appropriate checkboxes based on the "reason"
+    let reason = params.get("reason"); // Get the reason from the URL
+    if (reason) {
+        let reasonsArray = reason.toLowerCase().split(",").map(r => r.trim()); // Handle multiple reasons
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            let labelText = checkbox.parentNode.textContent.trim().toLowerCase(); // Get checkbox label
+
+            // Debugging: Print reason text
+            console.log(`Checking if "${labelText}" matches any in:`, reasonsArray);
+
+            // If the checkbox label matches any reason from URL, check it
+            if (reasonsArray.some(r => labelText.includes(r))) {
+                checkbox.checked = true;
+                console.log(`✅ Checked: ${labelText}`);
+            }
+        });
+    }
+
+    console.log("✅ Form fields updated from URL parameters.");
+});
+
+function prepareForPrint() {
+        document.querySelectorAll(".data-input").forEach(input => {
+            const span = document.createElement("span");
+            span.textContent = input.value || "_________________"; 
+            span.style.borderBottom = "1px solid black";
+            span.style.display = "inline-block";
+            span.style.minWidth = "100px";
+            input.style.display = "none"; 
+            input.parentNode.insertBefore(span, input);
+        });
+    }
+
+    function restoreAfterPrint() {
+        document.querySelectorAll(".data-input").forEach(input => {
+            input.style.display = ""; 
+            if (input.previousSibling.tagName === "SPAN") {
+                input.previousSibling.remove(); 
+            }
+        });
+    }
+
+    document.querySelector(".print-button").addEventListener("click", () => {
+        prepareForPrint();
+        setTimeout(() => {
+            window.print();
+            restoreAfterPrint();
+        }, 100);
+    });
+</script>
+</body>
+</html>
