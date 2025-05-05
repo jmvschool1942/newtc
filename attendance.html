@@ -11,7 +11,7 @@
       padding: 20px;
       background-color: #f9f9f9;
     }
-@keyframes fadeIn {
+    @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
     }
@@ -41,11 +41,11 @@
       background-color: #45a049;
       transform: scale(1.05);
     }
-select:focus {
+    select:focus {
       outline: 2px solid #4CAF50;
       box-shadow: 0px 0px 5px #4CAF50;
     }
-button {
+    button {
       cursor: pointer;
     }
     button:hover {
@@ -72,14 +72,30 @@ button {
       white-space: nowrap;
       text-overflow: ellipsis;
     }
-    thead { display: table-header-group; }
-    
-    /* Column width specifications for both tables */
+    thead { display: table-header-group; } /* Ensures header repeats on print */
+
+    /* Column width specifications */
     th:first-child, td:first-child { width: 40px; }
-    th:nth-child(2), td:nth-child(2) { width: 150px; }  /* Increased from 90px to 150px */
+    th:nth-child(2), td:nth-child(2) { width: 150px; }
     th:nth-child(3), td:nth-child(3) { width: 60px; }
-    th:nth-child(4), td:nth-child(4) { width: 200px; }  /* Increased from 120px to 200px */
+    th:nth-child(4), td:nth-child(4) { width: 200px; }
     th:nth-child(n+5), td:nth-child(n+5) { width: 25px; }
+
+    /* Style for Sunday columns in the main table */
+    .sunday {
+        background-color: #f0f0f0; /* Light gray background for Sunday columns */
+    }
+    .sunday-text span {
+        display: block;
+        line-height: 1; /* Adjust line height for vertical text */
+    }
+
+    /* Style for highlighting Sunday headers in the summary table */
+    .sunday-header {
+        background-color: #e0e0e0; /* Slightly darker gray for summary header highlight */
+        font-weight: bold;
+    }
+
 
     @media print {
       @page {
@@ -95,25 +111,38 @@ button {
         font-size: 10px;
         table-layout: fixed;
       }
-      
+
       /* Print-specific column widths */
       th:first-child, td:first-child { width: 40px; }
-      th:nth-child(2), td:nth-child(2) { width: 100px; }  /* Increased from 80px to 130px */
+      th:nth-child(2), td:nth-child(2) { width: 100px; }
       th:nth-child(3), td:nth-child(3) { width: 50px; }
-      th:nth-child(4), td:nth-child(4) { width: 180px; }  /* Increased from 100px to 180px */
+      th:nth-child(4), td:nth-child(4) { width: 180px; }
       th:nth-child(n+5), td:nth-child(n+5) { width: 20px; }
       th, td {
         padding: 0px;
         height: 20px;
         border: 2px solid #000;
       }
-      thead { display: table-header-group; }
+      thead { display: table-header-group; } /* Already ensures header repeats */
       .controls, .print-btn {
         display: none;
       }
       .class-month-heading {
         text-align: center;
       }
+      /* Ensure Sunday highlighting persists in print */
+       .sunday {
+            background-color: #f0f0f0 !important; /* Use !important to override potential print styles */
+            -webkit-print-color-adjust: exact; /* Ensures background colors print in Chrome/Safari */
+            print-color-adjust: exact; /* Standard property */
+       }
+       .sunday-header {
+            background-color: #e0e0e0 !important; /* Use !important */
+             -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            font-weight: bold;
+       }
+
     }
 .header-line {
   margin: 0;
@@ -140,14 +169,14 @@ button {
       <option value="Class I">Class I</option>
       <option value="Class II">Class II</option>
       <option value="Class III">Class III</option>
-<option value="Class IV">Class IV</option>
-<option value="Class V">Class V</option>
-<option value="Class VI A">Class VI A</option>
-<option value="Class VI B">Class VI B</option>
-<option value="Class VII A">Class VII A</option>
-<option value="Class VII B">Class VII B</option>
-<option value="Class VIII A">Class VIII A</option>
-<option value="Class VIII B">Class VIII B</option>
+      <option value="Class IV">Class IV</option>
+      <option value="Class V">Class V</option>
+      <option value="Class VI A">Class VI A</option>
+      <option value="Class VI B">Class VI B</option>
+      <option value="Class VII A">Class VII A</option>
+      <option value="Class VII B">Class VII B</option>
+      <option value="Class VIII A">Class VIII A</option>
+      <option value="Class VIII B">Class VIII B</option>
     </select>
     <select id="monthSelect">
       <option value="January">January</option>
@@ -195,7 +224,6 @@ button {
         const workbook = XLSX.read(data, { type: 'array' });
         workbookData = workbook;
         alert('Excel file loaded successfully!');
-        // Only enable Generate button after file upload
         document.getElementById('generateBtn').disabled = false;
       };
       reader.readAsArrayBuffer(file);
@@ -208,14 +236,21 @@ button {
     function isSunday(day, month, year) {
       const monthIndex = new Date(`${month} 1, ${year}`).getMonth();
       const date = new Date(year, monthIndex, day);
-      return date.getDay() === 0;
+      return date.getDay() === 0; // 0 corresponds to Sunday
     }
 
     function generateTable() {
       const month = document.getElementById('monthSelect').value;
-      const year = parseInt(document.getElementById('session').value.split('-')[0]);
+      const sessionValue = document.getElementById('session').value;
+      // Ensure sessionValue is correctly parsed, handling potential errors
+      const year = parseInt(sessionValue.split('-')[0]);
+      if (isNaN(year)) {
+          alert("Invalid session selected.");
+          return;
+      }
+
       const className = document.getElementById('classSelect').value;
-      const session = document.getElementById('session').value;
+      const session = sessionValue; // Use the full session string for display
 
       if (!workbookData) {
         alert("Please upload an Excel file first!");
@@ -235,42 +270,62 @@ button {
       const monthIndex = new Date(`${month} 1, ${year}`).getMonth();
       const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
       const sundayLetters = ['S', 'U', 'N', 'D', 'A', 'Y'];
+      // Adjust totalRows to ensure SUNDAY text fits even if fewer students
       const totalRows = Math.max(studentData.length, sundayLetters.length);
+
 
       // Generate main attendance table
       let tableHTML = `<table class="main-table"><thead><tr><th>Roll No</th><th>Unique ID</th><th>Adm No</th><th>Student Name</th>`;
       for (let i = 1; i <= daysInMonth; i++) {
+        // Add day header - no changes needed here for Sunday display
         tableHTML += `<th>${i}</th>`;
       }
       tableHTML += `</tr></thead><tbody>`;
 
+      // Populate student rows and Sunday text
       for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
-        const student = studentData[rowIndex] || {};
-        tableHTML += `<tr><td>${student.rollno || ''}</td><td>${student.uniqueid || ''}</td><td>${student.admno || ''}</td><td>${student.studentname || ''}</td>`;
+        const student = studentData[rowIndex] || {}; // Handle cases where studentData is shorter
+        tableHTML += `<tr>
+                        <td>${student.rollno || ''}</td>
+                        <td>${student.uniqueid || ''}</td>
+                        <td>${student.admno || ''}</td>
+                        <td>${student.studentname || ''}</td>`;
+
         for (let i = 1; i <= daysInMonth; i++) {
           if (isSunday(i, month, year)) {
+            // Apply 'sunday' class to the cell
+            // Insert the corresponding letter if within the bounds of sundayLetters array
             const letter = rowIndex < sundayLetters.length ? `<div class='sunday-text'><span>${sundayLetters[rowIndex]}</span></div>` : '';
             tableHTML += `<td class="sunday">${letter}</td>`;
           } else {
-            tableHTML += `<td></td>`;
+            tableHTML += `<td></td>`; // Regular day cell
           }
         }
         tableHTML += `</tr>`;
       }
       tableHTML += `</tbody></table>`;
 
-      // Generate summary table - removed the page break div
-      tableHTML += `<table class="summary-table">
+
+      // Generate summary table
+      // *** MODIFICATION START ***
+      tableHTML += `<table class="summary-table" style="margin-top: 20px;">
         <thead>
           <tr>
-            <th></th>
-            <th></th>
+            <th></th> <th></th>
             <th></th>
             <th>Description</th>`;
-      
+
+      // Loop through days to create header cells, highlighting Sundays
       for (let i = 1; i <= daysInMonth; i++) {
-        tableHTML += `<th>${i}</th>`;
+        if (isSunday(i, month, year)) {
+          // Add 'sunday-header' class for highlighting
+          tableHTML += `<th class="sunday-header">${i}</th>`;
+        } else {
+          tableHTML += `<th>${i}</th>`;
+        }
       }
+      // *** MODIFICATION END ***
+
       tableHTML += `</tr></thead><tbody>
         <tr>
           <td>1</td>
@@ -297,8 +352,7 @@ button {
 
       document.getElementById('heading').innerHTML = `Session: ${session} | Class: ${className} | Month: ${month}`;
       document.getElementById('tableContainer').innerHTML = tableHTML;
-      
-      // Enable print button after table is generated
+
       document.getElementById('printBtn').disabled = false;
     }
   </script>
