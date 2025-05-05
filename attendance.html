@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance Register</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+    body {
+      font-family: "Times New Roman", Times, serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+@keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h2 {
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    select, button, input[type="file"] {
+      padding: 8px;
+      font-size: 16px;
+      font-family: "Times New Roman", Times, serif;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      transition: 0.3s ease-in-out;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    .print-btn:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+select:focus {
+      outline: 2px solid #4CAF50;
+      box-shadow: 0px 0px 5px #4CAF50;
+    }
+button {
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 2px solid #000;
+      padding: 0px;
+      text-align: center;
+      vertical-align: middle;
+      position: relative;
+      height: 25px;
+      font-family: "Times New Roman", Times, serif;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    thead { display: table-header-group; }
+    
+    /* Column width specifications for both tables */
+    th:first-child, td:first-child { width: 40px; }
+    th:nth-child(2), td:nth-child(2) { width: 150px; }  /* Increased from 90px to 150px */
+    th:nth-child(3), td:nth-child(3) { width: 60px; }
+    th:nth-child(4), td:nth-child(4) { width: 200px; }  /* Increased from 120px to 200px */
+    th:nth-child(n+5), td:nth-child(n+5) { width: 25px; }
+
+    @media print {
+      @page {
+        size: legal landscape;
+        margin: 0.5cm;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      table {
+        width: 100%;
+        font-size: 10px;
+        table-layout: fixed;
+      }
+      
+      /* Print-specific column widths */
+      th:first-child, td:first-child { width: 40px; }
+      th:nth-child(2), td:nth-child(2) { width: 100px; }  /* Increased from 80px to 130px */
+      th:nth-child(3), td:nth-child(3) { width: 50px; }
+      th:nth-child(4), td:nth-child(4) { width: 180px; }  /* Increased from 100px to 180px */
+      th:nth-child(n+5), td:nth-child(n+5) { width: 20px; }
+      th, td {
+        padding: 0px;
+        height: 20px;
+        border: 2px solid #000;
+      }
+      thead { display: table-header-group; }
+      .controls, .print-btn {
+        display: none;
+      }
+      .class-month-heading {
+        text-align: center;
+      }
+    }
+.header-line {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.school-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.register-title {
+  font-size: 18px;
+}
+  </style>
+</head>
+<body>
+  <h2 class="header-line school-name">Jalalpur MV School</h2>
+<h2 class="header-line register-title">Attendance Register</h2>
+
+  <div class="controls">
+    <select id="session"></select>
+    <select id="classSelect">
+      <option value="Class I">Class I</option>
+      <option value="Class II">Class II</option>
+      <option value="Class III">Class III</option>
+<option value="Class IV">Class IV</option>
+<option value="Class V">Class V</option>
+<option value="Class VI A">Class VI A</option>
+<option value="Class VI B">Class VI B</option>
+<option value="Class VII A">Class VII A</option>
+<option value="Class VII B">Class VII B</option>
+<option value="Class VIII A">Class VIII A</option>
+<option value="Class VIII B">Class VIII B</option>
+    </select>
+    <select id="monthSelect">
+      <option value="January">January</option>
+      <option value="February">February</option>
+      <option value="March">March</option>
+      <option value="April">April</option>
+      <option value="May">May</option>
+      <option value="June">June</option>
+      <option value="July">July</option>
+      <option value="August">August</option>
+      <option value="September">September</option>
+      <option value="October">October</option>
+      <option value="November">November</option>
+      <option value="December">December</option>
+    </select>
+    <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none" />
+    <button onclick="document.getElementById('fileInput').click()">Upload Excel</button>
+    <button id="generateBtn" onclick="generateTable()" disabled>Generate</button>
+    <button id="printBtn" class="print-btn" onclick="window.print()" disabled>Print</button>
+  </div>
+  <div class="class-month-heading" id="heading"></div>
+  <div id="tableContainer"></div>
+
+    <script>
+    const sessionSelect = document.getElementById('session');
+    for (let year = 2023; year <= 2049; year++) {
+      const option = document.createElement('option');
+      option.value = `${year}-${year+1}`;
+      option.textContent = `${year}-${year+1}`;
+      sessionSelect.appendChild(option);
+    }
+
+    let workbookData = null;
+    let studentData = [];
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) {
+        alert("No file selected. Please upload a valid Excel file.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        workbookData = workbook;
+        alert('Excel file loaded successfully!');
+        // Only enable Generate button after file upload
+        document.getElementById('generateBtn').disabled = false;
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function normalizeString(str) {
+      return str.replace(/\s+/g, '').toLowerCase();
+    }
+
+    function isSunday(day, month, year) {
+      const monthIndex = new Date(`${month} 1, ${year}`).getMonth();
+      const date = new Date(year, monthIndex, day);
+      return date.getDay() === 0;
+    }
+
+    function generateTable() {
+      const month = document.getElementById('monthSelect').value;
+      const year = parseInt(document.getElementById('session').value.split('-')[0]);
+      const className = document.getElementById('classSelect').value;
+      const session = document.getElementById('session').value;
+
+      if (!workbookData) {
+        alert("Please upload an Excel file first!");
+        return;
+      }
+
+      const normalizedClass = normalizeString(className);
+      const sheetName = workbookData.SheetNames.find(sheet => normalizeString(sheet).includes(normalizedClass));
+      if (!sheetName) {
+        alert(`No sheet found matching class: ${className}`);
+        return;
+      }
+
+      const worksheet = workbookData.Sheets[sheetName];
+      studentData = XLSX.utils.sheet_to_json(worksheet);
+
+      const monthIndex = new Date(`${month} 1, ${year}`).getMonth();
+      const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+      const sundayLetters = ['S', 'U', 'N', 'D', 'A', 'Y'];
+      const totalRows = Math.max(studentData.length, sundayLetters.length);
+
+      // Generate main attendance table
+      let tableHTML = `<table class="main-table"><thead><tr><th>Roll No</th><th>Unique ID</th><th>Adm No</th><th>Student Name</th>`;
+      for (let i = 1; i <= daysInMonth; i++) {
+        tableHTML += `<th>${i}</th>`;
+      }
+      tableHTML += `</tr></thead><tbody>`;
+
+      for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+        const student = studentData[rowIndex] || {};
+        tableHTML += `<tr><td>${student.rollno || ''}</td><td>${student.uniqueid || ''}</td><td>${student.admno || ''}</td><td>${student.studentname || ''}</td>`;
+        for (let i = 1; i <= daysInMonth; i++) {
+          if (isSunday(i, month, year)) {
+            const letter = rowIndex < sundayLetters.length ? `<div class='sunday-text'><span>${sundayLetters[rowIndex]}</span></div>` : '';
+            tableHTML += `<td class="sunday">${letter}</td>`;
+          } else {
+            tableHTML += `<td></td>`;
+          }
+        }
+        tableHTML += `</tr>`;
+      }
+      tableHTML += `</tbody></table>`;
+
+      // Generate summary table - removed the page break div
+      tableHTML += `<table class="summary-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>Description</th>`;
+      
+      for (let i = 1; i <= daysInMonth; i++) {
+        tableHTML += `<th>${i}</th>`;
+      }
+      tableHTML += `</tr></thead><tbody>
+        <tr>
+          <td>1</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Total Present Students</td>
+          ${Array(daysInMonth).fill('<td></td>').join('')}
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Total Absent Students</td>
+          ${Array(daysInMonth).fill('<td></td>').join('')}
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Total Students</td>
+          ${Array(daysInMonth).fill(`<td>${studentData.length}</td>`).join('')}
+        </tr>
+        </tbody></table>`;
+
+      document.getElementById('heading').innerHTML = `Session: ${session} | Class: ${className} | Month: ${month}`;
+      document.getElementById('tableContainer').innerHTML = tableHTML;
+      
+      // Enable print button after table is generated
+      document.getElementById('printBtn').disabled = false;
+    }
+  </script>
+</body>
+</html>
