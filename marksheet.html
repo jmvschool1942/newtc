@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Marksheet Export - Unified</title>
+<script>
+function addTotalMarksRow(studentData, studentIndex, subjects, exams) {
+    let totalMarks = 0;
+    subjects.forEach(subject => {
+        exams.forEach(exam => {
+            const key = `${subject} (${exam})`;
+            totalMarks += Number(studentData[key] || 0);
+        });
+    });
+
+    const table = document.querySelector(`#marksTable-${studentIndex}`);
+    if (table) {
+        const totalRow = table.insertRow(-1);
+        const cell1 = totalRow.insertCell(0);
+        cell1.colSpan = 2;
+        cell1.innerText = 'Total Obtained Marks';
+        cell1.style.fontWeight = 'bold';
+
+        const cell2 = totalRow.insertCell(1);
+        cell2.colSpan = exams.length * subjects.length - 2;
+        cell2.innerText = totalMarks;
+        cell2.style.fontWeight = 'bold';
+        cell2.style.textAlign = 'right';
+    }
+}
+</script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "Times New Roman", serif;
+      padding: 4px;
+      margin: 0;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0.5cm;
+    }
+
+    #controls {
+      margin-bottom: 10px;
+    }
+
+    .info, table, .signature {
+      width: 100%;
+      max-width: 100%;
+      margin: auto;
+    }
+
+    .info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 5%;
+      margin-top:5px;
+    }
+
+    .info div {
+      width: 47%;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #444;
+      padding: 4px;
+      text-align: center;
+    }
+
+    .subject-col {
+      text-align: left;
+      padding-left: 8px;
+    }
+
+    .signature {
+      margin-top: 3em;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .signature div {
+      width: 45%;
+      text-align: center;
+    }
+
+    .signature-line {
+      margin-top: 2em;
+      border-top: 1px solid #000;
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    @media print {
+      #controls { display: none !important; }
+      @page { 
+        size: A4 landscape;
+        margin: 0.5cm;
+        /* Add these to prevent extra pages */
+        orphans: 0;
+        widows: 0;
+      }
+      #marksheetTemplate {
+        page-break-after: avoid;
+        page-break-before: avoid;
+        page-break-inside: avoid;
+      }
+      /* Remove extra spacing */
+      br { display: none; }
+      .signature { margin-top: 3.5em; }
+    }
+    
+
+    #marksheetTemplate {
+      position: relative;
+      background: white;
+      page-break-after: avoid;
+      max-height: calc(100vh - 1cm);
+    }
+    
+
+    #marksheetTemplate::before {
+      content: "Jalalpur MV School ";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-size: 40px;
+      color: rgba(0, 0, 0, 0.05);
+      display: block;
+      white-space: pre-wrap;
+      z-index: -1;
+      pointer-events: none;
+      transform: rotate(-30deg);
+      line-height: 4em;
+      text-align: center;
+      padding: 100px;
+    }
+        /* Add these new styles */
+        #marksheetTemplate {
+      position: relative;
+      background: linear-gradient(to bottom, #ffffff, #f9f9f9);
+      border: 1px solid #ddd;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      padding: 5px;
+      border-radius: 8px;
+      height: fit-content;
+      overflow: hidden;
+    }
+
+    h2, h3 {
+      color: #2c3e50;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+      margin: 5px 0;
+    }
+
+    .info {
+      background: rgba(244,244,244,0.7);
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #eee;
+      margin: 8px 0;
+    }
+
+    table {
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    th {
+      background: #34495e;
+      color: white;
+      font-weight: 500;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    tr:hover {
+      background-color: #f1f4f6;
+    }
+
+    .signature {
+      margin-top: 2.5em;
+      padding: 5px;
+    }
+
+    .signature-line {
+      margin-top: 2em;
+      border-top: 2px solid #34495e;
+      position: relative;
+    }
+
+    .signature-line::after {
+      content: '';
+      position: absolute;
+      bottom: 3px;
+      left: 0;
+      width: 100%;
+      border-top: 1px solid rgba(52, 73, 94, 0.3);
+    }
+
+    #marksheetTemplate::before {
+      opacity: 0.03;
+      font-family: "Times New Roman", serif;
+      font-weight: bold;
+    }
+
+    /* Update print styles to maintain design */
+    @media print {
+      #marksheetTemplate {
+        box-shadow: none;
+        border: none;
+        padding: 10px;
+        height: 100%;
+        max-height: 100%;
+        page-break-after: avoid;
+        page-break-before: avoid;
+        page-break-inside: avoid;
+      }
+      
+      th {
+        background-color: #34495e !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+    .print-only {
+  display: none;
+}
+
+@media print {
+  .print-only {
+    display: block;
+    font-size: 12px;
+    font-style: italic;
+padding: 4px 0 2px 0;
+    margin: 4px 0 0 0;
+    border-top: 1px dashed #999;
+    page-break-inside: avoid;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+<div id="controls">
+<input accept=".xlsx, .xls" id="excelFile" type="file"/>
+<select id="classSelect" onchange="filterByClass()" style="display:none;"></select>
+<button onclick="prevStudent()">Previous</button>
+<button onclick="nextStudent()">Next</button>
+<button onclick="window.print()">Print</button>
+<button id="printAllBtn" onclick="printAll()" style="display: none;">Print All</button>
+<button id="exportPDFBtn" onclick="exportAllToPDF()" style="display: none;">Export All to PDF</button>
+</div>
+<div id="marksheetWrapper">
+<div id="marksheetTemplate">
+<h2 style="text-align:center;">JALALPUR MV SCHOOL</h2>
+<h3 style="text-align:center;">P.O.: Jalalpur, District: Cachar, Assam</h3>
+<h3 style="text-align:center;">U-DISE: 18210108702 | Estd. 1942</h3>
+<h3 style="text-align:center;">Session: 2024-25</h3>
+<div class="info">
+<div><strong>Name of the student:</strong> <span id="name"></span></div>
+<div><strong>Unique ID:</strong> <span id="uid"></span></div>
+<div><strong>PEN:</strong> <span id="pen"></span></div>
+<div><strong>Adm. No.:</strong> <span id="adm"></span></div>
+<div><strong>Class:</strong> <span id="class"></span></div>
+<div><strong>Roll No:</strong> <span id="roll"></span></div>
+</div>
+<table>
+<thead>
+<tr>
+<th rowspan="2">Subjects</th>
+<th colspan="4">Marks</th>
+<th rowspan="2">A+B+C+D<br/>(T1)</th>
+<th rowspan="2">90% of T1</th>
+<th rowspan="2">10% of Gunotsav</th>
+<th rowspan="2">Grand Total</th>
+</tr>
+<tr>
+<th>FA I<br/>(A)</th>
+<th>SA I<br/>(B)</th>
+<th>FA II<br/>(C)</th>
+<th id="termLabel">SA II<br/>(D)</th>
+</tr>
+</thead>
+<tbody id="marksBody"></tbody>
+</table>
+<div class="signature">
+<div><div class="signature-line"></div>Signature of Class Teacher</div>
+<div><div class="signature-line"></div>Signature of Head Master</div>
+</div>
+</div>
+</div>
+<script>
+  let students = [], filteredStudents = [], currentIndex = 0;
+  let subjects = [];
+
+  function getSubjectsByClass(cls) {
+    const aeClasses = ["5", "8", "Class 5", "Class 8"];
+    const saClasses = ["1", "2", "3", "4", "6", "7", "Class 1", "Class 2", "Class 3", "Class 4", "Class 6", "Class 7"];
+
+    if (aeClasses.includes(cls)) {
+      document.getElementById("termLabel").innerHTML = "Annual Examination<br>(D)";
+    } else {
+      document.getElementById("termLabel").innerHTML = "SA II<br>(D)";
+    }
+
+    if (["6", "7", "8", "Class 6", "Class 7", "Class 8"].includes(cls)) {
+      return ["Language I", "Language II", "Language III", "Mathematics", "General Science", "Social Science","Art Education"];
+    } else {
+      return ["Language I", "Language II", "Mathematics", "Environmental Studies", "Art Education"];
+    }
+  }
+
+  document.getElementById('excelFile').addEventListener('change', handleFile, false);
+
+  function handleFile(e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+
+    students = [];  // clear previous data
+
+    // Loop through each sheet
+    workbook.SheetNames.forEach(sheetName => {
+      const sheet = workbook.Sheets[sheetName];
+      const sheetData = XLSX.utils.sheet_to_json(sheet);
+
+      // Add class name from sheet
+      sheetData.forEach(student => {
+        student["Class"] = sheetName;  // set class from sheet name
+        students.push(student);
+      });
+    });
+
+    populateClassOptions();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+
+  function populateClassOptions() {
+    const select = document.getElementById("classSelect");
+    const classSet = new Set(students.map(s => s["Class"]));
+    select.innerHTML = `<option value="">-- Select Class --</option>`;
+    classSet.forEach(cls => {
+      select.innerHTML += `<option value="${cls}">${cls}</option>`;
+    });
+    select.style.display = "inline-block";
+  }
+
+  function filterByClass() {
+    const selectedClass = document.getElementById("classSelect").value;
+    subjects = getSubjectsByClass(selectedClass);
+    filteredStudents = students.filter(s => s["Class"] === selectedClass);
+    currentIndex = 0;
+    if (filteredStudents.length > 0) {
+      populateForm(filteredStudents[0]);
+      document.getElementById("printAllBtn").style.display = "inline-block";
+      document.getElementById("exportPDFBtn").style.display = "inline-block";
+    }
+  }
+  function getGunotsavMaxMarks(subject, cls) {
+    if (subject === "Art Education") return "NA";
+
+    if (["1", "2", "Class 1", "Class 2"].includes(cls)) {
+      switch (subject) {
+        case "Language I": return 10;
+        case "Language II": return 10;
+        case "Mathematics": return 10;
+        default: return "NA";
+      }
+    }
+    else if (["3", "4", "5", "Class 3", "Class 4", "Class 5"].includes(cls)) {
+      switch (subject) {
+        case "Language I": return 16;
+        case "Language II": return 10;
+        case "Mathematics": return 18;
+        case "Environmental Studies": return 14;
+        default: return "NA";
+      }
+    }
+    else {
+      switch (subject) {
+        case "Language I": return 20;
+        case "Language II": return 10;
+        case "Language III": return 8;
+        case "Mathematics": return 20;
+        case "General Science": return 20;
+        case "Social Science": return 20;
+        default: return "NA";
+      }
+    }
+  }
+  function getTotalGunotsavMarks(cls) {
+    let total = 0;
+    const subjs = getSubjectsByClass(cls);
+    subjs.forEach(sub => {
+      const mark = getGunotsavMaxMarks(sub, cls);
+      if (mark !== "NA") {
+        total += mark*0.1;
+      }
+    });
+    return total;
+  }
+
+  function populateForm(student) {
+    // Basic info population
+    document.getElementById("name").textContent = student["Name"] || "";
+    document.getElementById("uid").textContent = student["Unique ID"] || "";
+    document.getElementById("pen").textContent = student["PEN"] || "";
+    document.getElementById("adm").textContent = student["Admission No"] || "";
+    document.getElementById("class").textContent = student["Class"] || "";
+    document.getElementById("roll").textContent = student["Roll No"] || "";
+
+    const body = document.getElementById("marksBody");
+    body.innerHTML = "";
+
+    // Add Maximum Marks row
+    const selectedClass = student["Class"];
+    const totalGunotsav = getTotalGunotsavMarks(selectedClass);
+    body.innerHTML += `
+      <tr style="font-weight: bold; background-color: #f0f0f0;">
+        <td class="subject-col">Maximum Marks</td>
+        <td>50</td>
+        <td>100</td>
+        <td>50</td>
+        <td>100</td>
+        <td>300</td>
+        <td>270</td>
+        <td>${totalGunotsav}</td>
+        <td>${270 + totalGunotsav}</td>
+      </tr>`;
+
+    // Initialize totals
+    let totalA = 0, totalB = 0, totalC = 0, totalD = 0;
+    let totalT1 = 0, totalP90 = 0, totalP10 = 0, totalGrand = 0;
+
+    // Add subject rows
+    subjects.forEach(sub => {
+    const A = student[`${sub} (FA I)`] || 0;
+    const B = student[`${sub} (SA I)`] || 0;
+    const C = student[`${sub} (FA II)`] || 0;
+    const D = student[`${sub} (SA II)`] || 0;
+    const G = parseFloat(student[`${sub} (Gunotsav)`] || 0);
+    const maxGunotsav = getGunotsavMaxMarks(sub, student["Class"]);
+
+    const T1 = safeSum(A, B, C, D);
+      const P90 = (T1 * 0.9).toFixed(2);
+      const P10 = maxGunotsav === "NA" ? "NA" : ((G / maxGunotsav) * maxGunotsav * 0.1).toFixed(2);
+      const Grand = maxGunotsav === "NA" ? P90 : (parseFloat(P90) + parseFloat(P10)).toFixed(2);
+
+    // Add to totals
+    totalA += parseFloat(A);
+    totalB += parseFloat(B);
+    totalC += parseFloat(C);
+    totalD += parseFloat(D);
+    totalT1 += parseFloat(T1);
+    totalP90 += parseFloat(P90);
+    if (maxGunotsav !== "NA") {
+      totalP10 += parseFloat(P10);
+      totalGrand += parseFloat(Grand);
+    } else {
+      totalGrand += parseFloat(P90);
+    }
+
+    body.innerHTML += `
+      <tr>
+        <td class="subject-col">${sub}</td>
+        <td>${A}</td><td>${B}</td><td>${C}</td><td>${D}</td>
+        <td>${T1}</td><td>${P90}</td>
+        <td>${maxGunotsav === "NA" ? "NA" : P10}</td>
+        <td>${Grand}</td>
+      </tr>`;
+  });
+
+    // Add total obtained marks row
+    body.innerHTML += `
+    <tr style="font-weight: bold; background-color: #f5f5f5;">
+      <td class="subject-col">Total Obtained Marks</td>
+      <td>${Math.ceil(totalA)}</td>
+      <td>${Math.ceil(totalB)}</td>
+      <td>${Math.ceil(totalC)}</td>
+      <td>${Math.ceil(totalD)}</td>
+      <td>${Math.ceil(totalT1)}</td>
+      <td>${Math.ceil(totalP90)}</td>
+      <td>${Math.ceil(totalP10)}</td>
+      <td>-</td>
+    </tr>
+    <tr style="font-weight: bold; background-color: #f5f5f5;">
+      <td class="subject-col">Percentage (%)</td>
+      <td>${((totalA / (50 * subjects.length)) * 100).toFixed(2)}</td>
+      <td>${((totalB / (100 * subjects.length)) * 100).toFixed(2)}</td>
+      <td>${((totalC / (50 * subjects.length)) * 100).toFixed(2)}</td>
+      <td>${((totalD / (100 * subjects.length)) * 100).toFixed(2)}</td>
+      <td>${((totalT1 / (300 * subjects.length)) * 100).toFixed(2)}</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+
+    </tr>`;
+    body.innerHTML += `
+    <tr style="font-weight: bold; background-color: #f5f5f5;">
+      <td class="subject-col">Grade</td>
+      <td>${calculateGrade((totalA / (50 * subjects.length)) * 100)}</td>
+      <td>${calculateGrade((totalB / (100 * subjects.length)) * 100)}</td>
+      <td>${calculateGrade((totalC / (50 * subjects.length)) * 100)}</td>
+      <td>${calculateGrade((totalD / (100 * subjects.length)) * 100)}</td>
+      <td>${calculateGrade((totalT1 / (300 * subjects.length)) * 100)}</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>`;
+    body.innerHTML += `
+    <tr style="font-weight: bold; background-color: #f5f5f5;">
+      <td class="subject-col">Remarks</td>
+      <td>${getRemarks(calculateGrade((totalA / (50 * subjects.length)) * 100))}</td>
+      <td>${getRemarks(calculateGrade((totalB / (100 * subjects.length)) * 100))}</td>
+      <td>${getRemarks(calculateGrade((totalC / (50 * subjects.length)) * 100))}</td>
+      <td>${getRemarks(calculateGrade((totalD / (100 * subjects.length)) * 100))}</td>
+      <td>${getRemarks(calculateGrade((totalT1 / (300 * subjects.length)) * 100))}</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>`;
+  // --------- Gunotsav Totals (print-only, class-wise subjects) ---------
+  // Remove previous gunotsavTotals if any
+  const oldTotals = document.getElementById("gunotsavTotals");
+  if (oldTotals) oldTotals.remove();
+
+  const classwiseSubjects = getSubjectsByClass(selectedClass);
+  let gunotsavText = "<div id='gunotsavTotals' class='print-only'><strong>Gunotsav Maximum Marks (Subject-wise):</strong><br/>";
+  classwiseSubjects.forEach(sub => {
+    const maxMark = getGunotsavMaxMarks(sub, selectedClass);
+    if (maxMark !== "NA") {
+      gunotsavText += `${sub}: ${maxMark} &nbsp;&nbsp;&nbsp;`;
+    }
+  });
+  gunotsavText += "</div>";
+
+  document.getElementById("marksheetTemplate").insertAdjacentHTML("beforeend", gunotsavText);
+
+  }
+
+  function safeSum(...vals) {
+    return vals.reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
+  }
+  function calculateGrade(percentage) {
+    if (percentage > 90) return 'A+';
+    if (percentage > 80) return 'A';
+    if (percentage > 60) return 'B';
+    if (percentage > 40) return 'C';
+    return 'D';
+  }
+  function getRemarks(grade) {
+    switch(grade) {
+      case 'A+': return 'Outstanding';
+      case 'A': return 'Excellent';
+      case 'B': return 'Very Good';
+      case 'C': return 'Good';
+      default: return 'Needs Improvement';
+    }
+  }
+  function nextStudent() {
+    currentIndex = (currentIndex + 1) % filteredStudents.length;
+    populateForm(filteredStudents[currentIndex]);
+  }
+
+  function prevStudent() {
+    currentIndex = (currentIndex - 1 + filteredStudents.length) % filteredStudents.length;
+    populateForm(filteredStudents[currentIndex]);
+  }
+
+  function printAll() {
+    let i = 0;
+    function loopPrint() {
+      if (i >= filteredStudents.length) return;
+      populateForm(filteredStudents[i]);
+      setTimeout(() => {
+        window.print();
+        i++;
+        setTimeout(loopPrint, 1000);
+      }, 500);
+    }
+    loopPrint();
+  }
+
+  async function exportAllToPDF() {
+    const original = document.getElementById("marksheetTemplate");
+    const pdfContent = document.createElement("div");
+
+    for (let i = 0; i < filteredStudents.length; i++) {
+        // Populate data BEFORE cloning
+        populateForm(filteredStudents[i]);
+        await new Promise(resolve => setTimeout(resolve, 150)); // Let DOM update
+
+        const clone = original.cloneNode(true);
+        clone.style.width = "297mm";   // A4 landscape
+        clone.style.height = "210mm";
+        clone.style.pageBreakAfter = "always";
+        clone.style.margin = "0 auto";
+        clone.style.boxShadow = "none";
+        clone.style.border = "none";
+        clone.style.transform = "none";
+        clone.style.position = "relative";
+
+        pdfContent.appendChild(clone);
+    }
+
+    const opt = {
+        margin: 0,
+        filename: 'All_Marksheets.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            scrollY: 0,
+            letterRendering: true,
+            logging: false
+        },
+        jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'landscape'
+        }
+    };
+
+    try {
+        await html2pdf().from(pdfContent).set(opt).save();
+    } catch (error) {
+        console.error("PDF generation failed:", error);
+    }
+}
+
+</script>
+</body>
+</html>
