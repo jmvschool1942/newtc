@@ -208,6 +208,11 @@
       option.textContent = `${year}-${year+1}`;
       sessionSelect.appendChild(option);
     }
+      // Set current academic session as default
+const today = new Date();
+const currentYear = today.getMonth() >= 3 ? today.getFullYear() : today.getFullYear() - 1;
+sessionSelect.value = `${currentYear}-${currentYear + 1}`;
+
      const monthSelect = document.getElementById('monthSelect');
 
 const monthsOrder = [
@@ -393,4 +398,5 @@ const sessionValue = document.getElementById('session').value;
   </script>
 </body>
 </html>
+
 
